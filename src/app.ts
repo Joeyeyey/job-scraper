@@ -1,22 +1,6 @@
 import moment from "moment";
 import puppeteer, { Browser } from "puppeteer";
-
-const REFRESH_DURATION = 60; // in minutes  
-
-type Filters = {
-    titleIncludes?: string[],
-    titleExcludes?: string[],
-    locationIncludes?: string[],
-    locationExcludes?: string[]
-}
-
-type JobListing = {
-    id: string,
-    jobTitle: string,
-    jobLocation: string,
-    jobUrl: string,
-    foundDate: string
-}
+import {JobListing, Filters} from "./JobListing.js";
 
 /**
  * @async
