@@ -95,31 +95,35 @@ async function main() {
     const foundHashes: Set<string> = new Set();
     const browser = await puppeteer.launch();
 
-    while (true) {
-        try {
-            let newListings: JobListing[] = [];
-            await Promise.all([
-                await getRiotGamesListings(browser, foundHashes, filters),
-            ]).then((listings) => {
-                newListings = newListings.concat(listings.flat());
-            });
-            if (newListings.length > 0) {
-                for (const listing of newListings) {
-                    fetch('https://ntfy.sh/joeyeyey-job-scraper', {
-                        method: 'POST',
-                        body: `${listing.jobTitle}\n${listing.jobLocation}\n${listing.jobUrl}`
-                    })
-                }
-            } else {
-                // console.log(`No new listings found as of ${moment().format('YYYY-MM-DD HH:mm:ss')}`);
+    try {
+        let newListings: JobListing[] = [];
+        await Promise.all([
+            await getRiotGamesListings(browser, foundHashes, filters),
+        ]).then((listings) => {
+            newListings = newListings.concat(listings.flat());
+        });
+
+        if (newListings.length > 0) {
+            for (const listing of newListings) {
+
+                await fetch('https://ntfy.sh/joeyeyey-job-scraper', {
+                    method: 'POST',
+                    headers: {
+                        'Title': listing.id
+                    },
+                    body: `${listing.jobTitle}\n${listing.jobLocation}\n${listing.jobUrl}`
+                })
+                
             }
-        } catch (e) {
-            console.log(`ERROR: ${e}`);
+        } else {
+            // console.log(`No new listings found as of ${moment().format('YYYY-MM-DD HH:mm:ss')}`);
         }
-        await new Promise(r => setTimeout(r, REFRESH_DURATION * 60 * 1000));
+    } catch (e) {
+        console.log(`ERROR: ${e}`);
     }
 }
 
-main();
+await main();
+process.exit();
 
 
